@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 project(arp_spoofer)
 
 # Add executable
-add_executable(arp_spoofer main.cpp Session.cpp ARP_Packet.cpp Sniffer.cpp)
+add_executable(arp_spoofer main.cpp Session.cpp ARP_Packet.cpp Sniffer.cpp EthInterface.cpp)
 
 # Set standard
 set(CMAKE_CXX_STANDARD 11)
