@@ -5,6 +5,9 @@ class ARP_Packet
 {
 public:
 
+	// Size in bytes
+	const static int ARP_SIZE = 64;
+
 private:
 
 };
