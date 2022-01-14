@@ -27,11 +27,11 @@ public:
 
 	// Size in bytes
 	const static int ARP_SIZE = 64;
-	ARP_Packet(unsigned char* packet);
+	ARP_Packet(unsigned char* packet, unsigned char* local_mac);
 
 private:
 
-	void parseAddresses(unsigned char* packet);
+	void parseAddresses(unsigned char* packet, unsigned char* local_mac);
 
 	u_int16_t htype;
 	u_int16_t ptype;
@@ -42,8 +42,6 @@ private:
 	u_int8_t sender_ip[PROTOCOL_LENGTH];
 	u_int8_t target_mac[HARDWARE_LENGTH];
 	u_int8_t target_ip[PROTOCOL_LENGTH];
-
-	int int_opcode;
 
 	struct arp_header header;
 
