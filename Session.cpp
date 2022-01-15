@@ -75,9 +75,8 @@ void Session::start()
 void Session::sendResponse(ARP_Packet packet)
 {
     // create an ethernet header big enough to encapsulate arp response
-    int frameSize = 2 * HARDWARE_LENGTH + 2 + sizeof(arp_header);
     int arpSize = 28;
-    u_int8_t ethHeader[frameSize];
+    u_int8_t ethHeader[ARP_Packet::ARP_SIZE];
     
     struct arp_header* arpHeader;
     struct sockaddr_ll address;
@@ -109,7 +108,7 @@ void Session::sendResponse(ARP_Packet packet)
         throw std::runtime_error("Failed to create socket");
     }
 
-    bytes = sendto(sock, ethHeader, frameSize, 0, (struct sockaddr*)&address, sizeof(address));
+    bytes = sendto(sock, ethHeader, ARP_Packet::ARP_SIZE, 0, (struct sockaddr*)&address, sizeof(address));
     if (bytes <= 0)
     {
         throw std::runtime_error("Failed to send response");
