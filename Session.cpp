@@ -1,5 +1,6 @@
 #include "Session.h"
 
+#include <cstring>
 #include <iostream>
 #include <stdio.h>
 
@@ -27,6 +28,30 @@ Session::Session(std::string if_name)
 /*
  * Methods
  */
+
+// Start session
+void Session::start()
+{
+    unsigned char frame[ARP_Packet::ARP_SIZE];
+
+    bool sessionRunning = true;
+    while (sessionRunning)
+    {
+        // Clear frame buffer and receive data
+        memset(frame, 0, sizeof(frame));
+        sniffer->receiveData(frame);
+
+        // Create packet with received data and transmit response
+		ARP_Packet ap(frame, interface->get_if_mac());
+        sendResponse(ap);
+
+    }
+}
+
+void Session::sendResponse(ARP_Packet packet)
+{
+    struct arp_header* header = packet.getArpHeader();
+}
 
 // Just to print the interface details for the user
 void Session::printInterface()

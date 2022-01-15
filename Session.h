@@ -12,9 +12,11 @@ class Session
 public:
 
     Session(std::string if_name);
+    void start();
 
 private:
 
+    void sendResponse(ARP_Packet packet);
     void printInterface();
 
     EthInterface* interface;
