@@ -5,6 +5,7 @@
 
 #define HARDWARE_LENGTH 6
 #define PROTOCOL_LENGTH 4
+#define ETH_HEADER_LEN 14
 
 // ARP header used to send requests
 struct arp_header
