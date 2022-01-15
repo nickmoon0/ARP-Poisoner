@@ -1,8 +1,21 @@
 #include "Session.h"
 
+#include <arpa/inet.h>
+
 #include <cstring>
 #include <iostream>
+
+#include <linux/if_packet.h>
+
+#include <net/ethernet.h>
+#include <netinet/ip.h>
+
 #include <stdio.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <unistd.h>
 
 /*
  * Constructor
@@ -43,14 +56,66 @@ void Session::start()
 
         // Create packet with received data and transmit response
 		ARP_Packet ap(frame, interface->get_if_mac());
-        sendResponse(ap);
 
+        try
+        {
+            sendResponse(ap);
+
+            std::cout << "Sent response:" << std::endl;
+
+        }
+        catch (std::runtime_error e)
+        {
+            std::cout << "Error: " << e.what() << std::endl;
+        }   
+    
     }
 }
 
 void Session::sendResponse(ARP_Packet packet)
 {
-    struct arp_header* header = packet.getArpHeader();
+    // create an ethernet header big enough to encapsulate arp response
+    int frameSize = 2 * HARDWARE_LENGTH + 2 + sizeof(arp_header);
+    int arpSize = 28;
+    u_int8_t ethHeader[frameSize];
+    
+    struct arp_header* arpHeader;
+    struct sockaddr_ll address;
+
+    int sock;
+    int bytes;
+
+    // Get arp header and use it to create ethernet header
+    arpHeader = packet.getArpHeader();
+    
+    memcpy(ethHeader, arpHeader->target_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
+    memcpy(ethHeader + HARDWARE_LENGTH, arpHeader->sender_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
+    ethHeader[2 * HARDWARE_LENGTH] = ETH_P_ARP / 256;
+    ethHeader[2 * HARDWARE_LENGTH + 1] = ETH_P_ARP % 256;
+
+    // Encapsulate ARP header
+    memcpy(&ethHeader[ETH_HEADER_LEN], arpHeader, sizeof(arp_header));
+
+    // Fill out address struct (sockaddr_ll)
+    address.sll_family = AF_PACKET;
+    address.sll_ifindex = interface->get_if_index();
+    address.sll_halen = htons(HARDWARE_LENGTH);
+    memcpy(address.sll_addr, arpHeader->sender_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
+
+    // Create socket to send data
+    sock = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ARP));
+    if (sock < 0)
+    {
+        throw std::runtime_error("Failed to create socket");
+    }
+
+    bytes = sendto(sock, ethHeader, frameSize, 0, (struct sockaddr*)&address, sizeof(address));
+    if (bytes <= 0)
+    {
+        throw std::runtime_error("Failed to send response");
+    }
+
+    close(sock);
 }
 
 // Just to print the interface details for the user
