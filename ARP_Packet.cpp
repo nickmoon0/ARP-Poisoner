@@ -23,6 +23,9 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     this->opcode = htons(2);
 
     parseAddresses(packet, local_mac);
+
+    // Initialise to nullptr
+    this->header = nullptr;
 }
 
 /*
