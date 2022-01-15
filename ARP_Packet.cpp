@@ -4,6 +4,7 @@
 
 #include <linux/if_ether.h>
 
+#include <stdlib.h>
 #include <string.h>
 
 /*
@@ -56,4 +57,27 @@ void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
 
     printf("Target IP: %u.%u.%u.%u\n", target_ip[0], target_ip[1], target_ip[2], target_ip[3]);
     */
+}
+
+arp_header* ARP_Packet::getArpHeader()
+{
+    // If header has not yet been created
+    if (this->header == nullptr)
+    {
+        this->header = (arp_header*)malloc(sizeof(arp_header));
+        
+        header->htype = this->htype;
+        header->ptype = this->ptype;
+        header->hlen = this->hlen;
+        header->plen = this->plen;
+        header->opcode = this->opcode;
+
+        memcpy(header->sender_mac, this->sender_mac, HARDWARE_LENGTH);
+        memcpy(header->sender_ip, this->sender_ip, PROTOCOL_LENGTH);
+
+        memcpy(header->target_mac, this->target_mac, HARDWARE_LENGTH);
+        memcpy(header->target_ip, this->target_ip, PROTOCOL_LENGTH);   
+    }
+
+    return this->header;
 }
