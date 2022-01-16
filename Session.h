@@ -12,6 +12,8 @@ class Session
 public:
 
     Session(std::string if_name);
+    ~Session();
+
     void start();
 
 private:

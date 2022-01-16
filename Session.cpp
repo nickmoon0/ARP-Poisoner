@@ -37,6 +37,12 @@ Session::Session(std::string if_name)
     }
 }
 
+Session::~Session()
+{
+    delete interface;
+    delete sniffer;
+}
+
 /*
  * Methods
  */
