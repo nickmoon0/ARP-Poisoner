@@ -56,10 +56,19 @@ void Session::start()
 
         // Create packet with received data and transmit response
         ARP_Packet ap(frame, interface->get_if_mac());
-
         try
         {
+            // Send response before printing to reduce delay
             sendResponse(ap);
+
+            std::cout << "---------------------" << std::endl;
+
+            std::cout << "Received ARP request:" << std::endl;
+            ARP_Packet::printArpHeader(ap.getArpReq());
+            
+            std::cout << std::endl << "Sent ARP response:" << std::endl;
+            ARP_Packet::printArpHeader(ap.getArpRes());
+            std::cout << std::endl;
         }
         catch (std::runtime_error e)
         {
