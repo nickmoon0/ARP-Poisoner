@@ -30,11 +30,15 @@ public:
     const static int ARP_SIZE = ETH_HEADER_LEN + sizeof(arp_header);
     ARP_Packet(unsigned char* packet, unsigned char* local_mac);
 
-    arp_header* getArpHeader();
+    arp_header* getArpRes();
+    arp_header* getArpReq();
 
 private:
 
     void parseAddresses(unsigned char* packet, unsigned char* local_mac);
+    
+    void createArpReq(unsigned char* packet);
+    void createArpRes();
 
     u_int16_t htype;
     u_int16_t ptype;
@@ -46,8 +50,8 @@ private:
     u_int8_t target_mac[HARDWARE_LENGTH];
     u_int8_t target_ip[PROTOCOL_LENGTH];
 
-    struct arp_header* header;
-
+    struct arp_header* arpRes;
+    struct arp_header* arpReq;
 };
 
 #endif
