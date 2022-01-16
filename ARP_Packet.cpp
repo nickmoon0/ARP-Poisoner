@@ -23,14 +23,40 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     this->opcode = htons(2);
 
     parseAddresses(packet, local_mac);
+    createArpReq(packet);
 
     // Initialise to nullptr
     this->header = nullptr;
+
 }
 
 /*
  * Methods
  */
+
+void ARP_Packet::createArpReq(unsigned char* packet)
+{
+    this->arpReq = (arp_header*)malloc(sizeof(arp_header));
+
+    // Hardware and protocol type
+    memcpy(&arpReq->htype, &packet[ETH_HEADER_LEN], 2);
+    memcpy(&arpReq->ptype, &packet[ETH_HEADER_LEN + 2], 2);
+
+    // Hardware and protocol length
+    memcpy(&arpReq->hlen, &packet[ETH_HEADER_LEN + 4], 1);
+    memcpy(&arpReq->plen, &packet[ETH_HEADER_LEN + 5], 1);
+
+    // Operation type
+    memcpy(&arpReq->opcode, &packet[ETH_HEADER_LEN + 6], 2);
+
+    // Sender hardware and protocol address
+    memcpy(arpReq->sender_mac, &packet[ETH_HEADER_LEN + 8], HARDWARE_LENGTH);
+    memcpy(arpReq->sender_ip, &packet[ETH_HEADER_LEN + 14], PROTOCOL_LENGTH);
+
+    // Target hardware and protocol address
+    memcpy(arpReq->target_mac, &packet[ETH_HEADER_LEN + 18], HARDWARE_LENGTH);
+    memcpy(arpReq->target_ip, &packet[ETH_HEADER_LEN + 24], PROTOCOL_LENGTH);
+}
 
 void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
 {
@@ -48,18 +74,6 @@ void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
 
     // Copy sender ip to target ip
     memcpy(&target_ip, &packet[sender_mac_start + HARDWARE_LENGTH], PROTOCOL_LENGTH);
-
-    /*
-    printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-        sender_mac[0], sender_mac[1], sender_mac[2], sender_mac[3], sender_mac[4], sender_mac[5]);
-
-    printf("Sender IP: %u.%u.%u.%u\n", sender_ip[0], sender_ip[1], sender_ip[2], sender_ip[3]);
-
-    printf("Target MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-        target_mac[0], target_mac[1], target_mac[2], target_mac[3], target_mac[4], target_mac[5]);
-
-    printf("Target IP: %u.%u.%u.%u\n", target_ip[0], target_ip[1], target_ip[2], target_ip[3]);
-    */
 }
 
 arp_header* ARP_Packet::getArpHeader()
@@ -83,4 +97,9 @@ arp_header* ARP_Packet::getArpHeader()
     }
 
     return this->header;
+}
+
+arp_header* ARP_Packet::getArpReq()
+{
+    return this->arpReq;
 }
