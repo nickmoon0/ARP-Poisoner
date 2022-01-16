@@ -91,7 +91,7 @@ void Session::sendResponse(ARP_Packet packet)
     u_int8_t ethHeader[ARP_Packet::ARP_SIZE];
     
     struct arp_header* arpHeader;
-    struct sockaddr_ll address;
+    struct sockaddr_ll address = {0};
 
     int sock;
     int bytes;
