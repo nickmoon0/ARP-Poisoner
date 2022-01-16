@@ -26,7 +26,7 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     
     // Create structs
     createArpReq(packet);
-    createArpHeader();
+    createArpRes();
 
 }
 
@@ -58,21 +58,21 @@ void ARP_Packet::createArpReq(unsigned char* packet)
     memcpy(arpReq->target_ip, &packet[ETH_HEADER_LEN + 24], PROTOCOL_LENGTH);
 }
 
-void ARP_Packet::createArpHeader()
+void ARP_Packet::createArpRes()
 {
-    this->header = (arp_header*)malloc(sizeof(arp_header));
+    this->arpRes = (arp_header*)malloc(sizeof(arp_header));
         
-    header->htype = this->htype;
-    header->ptype = this->ptype;
-    header->hlen = this->hlen;
-    header->plen = this->plen;
-    header->opcode = this->opcode;
+    arpRes->htype = this->htype;
+    arpRes->ptype = this->ptype;
+    arpRes->hlen = this->hlen;
+    arpRes->plen = this->plen;
+    arpRes->opcode = this->opcode;
 
-    memcpy(header->sender_mac, this->sender_mac, HARDWARE_LENGTH);
-    memcpy(header->sender_ip, this->sender_ip, PROTOCOL_LENGTH);
+    memcpy(arpRes->sender_mac, this->sender_mac, HARDWARE_LENGTH);
+    memcpy(arpRes->sender_ip, this->sender_ip, PROTOCOL_LENGTH);
 
-    memcpy(header->target_mac, this->target_mac, HARDWARE_LENGTH);
-    memcpy(header->target_ip, this->target_ip, PROTOCOL_LENGTH); 
+    memcpy(arpRes->target_mac, this->target_mac, HARDWARE_LENGTH);
+    memcpy(arpRes->target_ip, this->target_ip, PROTOCOL_LENGTH); 
 }
 
 void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
@@ -93,9 +93,9 @@ void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
     memcpy(&target_ip, &packet[sender_mac_start + HARDWARE_LENGTH], PROTOCOL_LENGTH);
 }
 
-arp_header* ARP_Packet::getArpHeader()
+arp_header* ARP_Packet::getArpRes()
 {
-    return this->header;
+    return this->arpRes;
 }
 
 arp_header* ARP_Packet::getArpReq()

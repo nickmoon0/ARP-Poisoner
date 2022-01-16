@@ -60,13 +60,11 @@ void Session::start()
         try
         {
             sendResponse(ap);
-
-            std::cout << "Sent response:" << std::endl;
-
         }
         catch (std::runtime_error e)
         {
             std::cout << "Error: " << e.what() << std::endl;
+            throw e;
         }   
     
     }
@@ -85,7 +83,7 @@ void Session::sendResponse(ARP_Packet packet)
     int bytes;
 
     // Get arp header and use it to create ethernet header
-    arpHeader = packet.getArpHeader();
+    arpHeader = packet.getArpRes();
     
     memcpy(ethHeader, arpHeader->target_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
     memcpy(ethHeader + HARDWARE_LENGTH, arpHeader->sender_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
