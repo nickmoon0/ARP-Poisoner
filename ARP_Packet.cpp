@@ -2,10 +2,15 @@
 
 #include <arpa/inet.h>
 
+#include <iostream>
+#include <iomanip>
+
 #include <linux/if_ether.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <sstream>
 
 /*
  * Constructor/Destructor
@@ -33,6 +38,69 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
 /*
  * Methods
  */
+
+void ARP_Packet::printArpHeader(struct arp_header* header)
+{
+    unsigned char highByte;
+    unsigned char lowByte;
+
+    // Change to print hex
+    std::cout << std::hex;
+
+    // Print hardware and protocol type
+    highByte = header->htype >> 8;
+    lowByte = header->htype & 0xFF;
+    
+    std::cout << "Hardware type: " << std::setw(2) << std::setfill('0') << +lowByte << " ";
+    std::cout << std::setw(2) << std::setfill('0') << +highByte << std::endl;
+
+    highByte = header->ptype >> 8;
+    lowByte = header->ptype & 0xFF;
+
+    std::cout << "Protocol type: " << std::setw(2) << std::setfill('0') << +lowByte << " ";
+    std::cout << std::setw(2) << std::setfill('0') << +highByte << std::endl;
+
+    // Print hardware and protocol length
+    std::cout << "Hardware length: " << std::setw(2) << std::setfill('0') << +header->hlen << std::endl;
+    std::cout << "Protocol length: " << std::setw(2) << std::setfill('0') << +header->plen << std::endl;
+
+    // Print operation code
+    highByte = header->opcode >> 8;
+    lowByte = header->opcode & 0xFF;
+
+    std::cout << "Operation code: " << std::setw(2) << std::setfill('0') << +lowByte << " ";
+    std::cout << std::setw(2) << std::setfill('0') << +highByte << std::endl;
+
+    // Print sender addresses
+    std::cout << "Sender MAC: ";
+    printAddress(header->sender_mac, HARDWARE_LENGTH);
+    std::cout << "Sender IP: ";
+    printAddress(header->sender_ip, PROTOCOL_LENGTH);
+
+    std::cout << "Target MAC: ";
+    printAddress(header->target_mac, HARDWARE_LENGTH);
+    std::cout << "Target IP: ";
+    printAddress(header->target_ip, PROTOCOL_LENGTH);
+
+    // Revert back to printing decimal
+    std::cout << std::dec;
+}
+
+void ARP_Packet::printAddress(u_int8_t address[], int addressSize)
+{
+    if (addressSize == HARDWARE_LENGTH)
+    {
+        printf("%02x:%02x:%02x:%02x:%02x:%02x\n", address[0], address[1], address[2], address[3], address[4], address[5]);
+    }
+    else if (addressSize == PROTOCOL_LENGTH)
+    {
+        printf("%u.%u.%u.%u\n", address[0], address[1], address[2], address[3]);
+    }
+    else
+    {
+        throw std::runtime_error("Unknown address length");
+    }
+}
 
 void ARP_Packet::createArpReq(unsigned char* packet)
 {

@@ -26,6 +26,9 @@ class ARP_Packet
 {
 public:
 
+    static void printArpHeader(struct arp_header* header);
+    static void printAddress(u_int8_t address[], int addressSize);
+
     // Size in bytes
     const static int ARP_SIZE = ETH_HEADER_LEN + sizeof(arp_header);
     ARP_Packet(unsigned char* packet, unsigned char* local_mac);
