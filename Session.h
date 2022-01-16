@@ -18,7 +18,7 @@ public:
 
 private:
 
-    void sendResponse(ARP_Packet packet);
+    void sendResponse(struct arp_header* arpHeader);
     void printInterface();
 
     EthInterface* interface;
