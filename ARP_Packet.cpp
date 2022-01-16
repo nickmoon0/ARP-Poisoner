@@ -34,6 +34,12 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     createArpRes();
 }
 
+ARP_Packet::~ARP_Packet()
+{
+    free(arpReq);
+    free(arpRes);
+}
+
 /*
  * Methods
  */

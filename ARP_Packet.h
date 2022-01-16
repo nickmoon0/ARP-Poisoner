@@ -31,7 +31,9 @@ public:
 
     // Size in bytes
     const static int ARP_SIZE = ETH_HEADER_LEN + sizeof(arp_header);
+    
     ARP_Packet(unsigned char* packet, unsigned char* local_mac);
+    ~ARP_Packet();
 
     arp_header* getArpRes();
     arp_header* getArpReq();
