@@ -12,6 +12,9 @@ class Session
 public:
 
     Session(std::string if_name);
+    Session(std::string if_name, std::string target_mac, std::string target_ip, std::string source_mac, std::string source_ip);
+
+
     ~Session();
 
     void start();
@@ -23,6 +26,12 @@ private:
 
     EthInterface* interface;
     Sniffer* sniffer;
+
+    std::string target_ip;
+    std::string target_mac;
+
+    std::string sender_ip;
+    std::string sender_mac;
 };
 
 #endif

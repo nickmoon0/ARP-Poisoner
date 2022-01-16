@@ -25,11 +25,37 @@ Session::Session(std::string if_name)
 {
     try
     {
-        interface = new EthInterface(if_name.c_str());
-        sniffer = new Sniffer(interface->get_if_index());
+        this->interface = new EthInterface(if_name.c_str());
+        this->sniffer = new Sniffer(interface->get_if_index());
 
         // If interface and sniffer created successfully
         printInterface();
+
+        this->target_ip = "";
+        this->target_mac = "";
+        this->sender_ip = "";
+        this->sender_mac = "";
+    }
+    catch (std::runtime_error e)
+    {
+        throw e;
+    }
+}
+
+Session::Session(std::string if_name, std::string target_mac, std::string target_ip, std::string source_mac, std::string source_ip)
+{
+    try
+    {
+        this->interface = new EthInterface(if_name.c_str());
+        this->sniffer = new Sniffer(interface->get_if_index());
+
+        // If interface and sniffer created successfully
+        printInterface();
+
+        this->target_ip = target_ip;
+        this->target_mac = target_mac;
+        this->sender_ip = sender_ip;
+        this->sender_mac = sender_mac;
     }
     catch (std::runtime_error e)
     {
