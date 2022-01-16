@@ -33,7 +33,6 @@ Session::Session(std::string if_name)
     }
     catch (std::runtime_error e)
     {
-        std::cout << e.what() << std::endl;
         throw e;
     }
 }
@@ -56,17 +55,24 @@ void Session::start()
 
         // Create packet with received data and transmit response
         ARP_Packet ap(frame, interface->get_if_mac());
-
         try
         {
+            // Send response before printing to reduce delay
             sendResponse(ap);
 
-            std::cout << "Sent response:" << std::endl;
+            std::cout << "---------------------" << std::endl;
 
+            std::cout << std::endl << "Received ARP request:" << std::endl;
+            ARP_Packet::printArpHeader(ap.getArpReq());
+
+            std::cout << std::endl << "Sent ARP response:" << std::endl;
+            ARP_Packet::printArpHeader(ap.getArpRes());
+
+            std::cout << std::endl;
         }
         catch (std::runtime_error e)
         {
-            std::cout << "Error: " << e.what() << std::endl;
+            throw e;
         }   
     
     }
@@ -85,7 +91,7 @@ void Session::sendResponse(ARP_Packet packet)
     int bytes;
 
     // Get arp header and use it to create ethernet header
-    arpHeader = packet.getArpHeader();
+    arpHeader = packet.getArpRes();
     
     memcpy(ethHeader, arpHeader->target_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
     memcpy(ethHeader + HARDWARE_LENGTH, arpHeader->sender_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
@@ -130,4 +136,6 @@ void Session::printInterface()
     mac = interface->get_if_mac();
     std::cout << "  mac: ";
     printf("%02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    std::cout << std::endl;
 }
