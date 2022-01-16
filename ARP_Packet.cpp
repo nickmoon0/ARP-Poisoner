@@ -34,6 +34,12 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     createArpRes();
 }
 
+ARP_Packet::~ARP_Packet()
+{
+    free(arpRes);
+    free(arpReq);
+}
+
 /*
  * Methods
  */
@@ -103,7 +109,7 @@ void ARP_Packet::printAddress(u_int8_t address[], int addressSize)
 
 void ARP_Packet::createArpReq(unsigned char* packet)
 {
-    this->arpReq = (arp_header*)malloc(sizeof(arp_header));
+    this->arpReq = (struct arp_header*)malloc(sizeof(arp_header));
 
     // Hardware and protocol type
     memcpy(&arpReq->htype, &packet[ETH_HEADER_LEN], 2);
@@ -127,7 +133,7 @@ void ARP_Packet::createArpReq(unsigned char* packet)
 
 void ARP_Packet::createArpRes()
 {
-    this->arpRes = (arp_header*)malloc(sizeof(arp_header));
+    this->arpRes = (struct arp_header*)malloc(sizeof(arp_header));
         
     arpRes->htype = this->htype;
     arpRes->ptype = this->ptype;

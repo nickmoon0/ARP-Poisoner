@@ -37,6 +37,12 @@ Session::Session(std::string if_name)
     }
 }
 
+Session::~Session()
+{
+    delete interface;
+    delete sniffer;
+}
+
 /*
  * Methods
  */
@@ -44,6 +50,7 @@ Session::Session(std::string if_name)
 // Start session
 void Session::start()
 {
+    ARP_Packet* ap;
     unsigned char frame[ARP_Packet::ARP_SIZE];
 
     bool sessionRunning = true;
@@ -54,44 +61,40 @@ void Session::start()
         sniffer->receiveData(frame);
 
         // Create packet with received data and transmit response
-        ARP_Packet ap(frame, interface->get_if_mac());
         try
         {
+            ap = new ARP_Packet(frame, interface->get_if_mac());
+
             // Send response before printing to reduce delay
-            sendResponse(ap);
+            sendResponse(ap->getArpRes());
 
+            // Print out ARP frame data
             std::cout << "---------------------" << std::endl;
-
             std::cout << std::endl << "Received ARP request:" << std::endl;
-            ARP_Packet::printArpHeader(ap.getArpReq());
-
+            ARP_Packet::printArpHeader(ap->getArpReq());
             std::cout << std::endl << "Sent ARP response:" << std::endl;
-            ARP_Packet::printArpHeader(ap.getArpRes());
-
+            ARP_Packet::printArpHeader(ap->getArpRes());
             std::cout << std::endl;
+
+            delete ap;
         }
         catch (std::runtime_error e)
         {
             throw e;
-        }   
-    
+        }
     }
 }
 
-void Session::sendResponse(ARP_Packet packet)
+void Session::sendResponse(struct arp_header* arpHeader)
 {
     // create an ethernet header big enough to encapsulate arp response
     int arpSize = 28;
     u_int8_t ethHeader[ARP_Packet::ARP_SIZE];
     
-    struct arp_header* arpHeader;
-    struct sockaddr_ll address;
+    struct sockaddr_ll address = {0};
 
     int sock;
     int bytes;
-
-    // Get arp header and use it to create ethernet header
-    arpHeader = packet.getArpRes();
     
     memcpy(ethHeader, arpHeader->target_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
     memcpy(ethHeader + HARDWARE_LENGTH, arpHeader->sender_mac, HARDWARE_LENGTH * sizeof(u_int8_t));
