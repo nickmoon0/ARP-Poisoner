@@ -32,7 +32,6 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     // Create structs
     createArpReq(packet);
     createArpRes();
-
 }
 
 /*

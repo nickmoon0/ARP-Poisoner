@@ -17,7 +17,16 @@ int main(int argc, char* argv[])
     {
         std::cout << "No interface entered. Defaulting to " << interface << std::endl;
     }
-    Session s(interface);
-    s.start();
+
+    try
+    {
+        Session s(interface);
+        s.start();
+    }
+    catch (std::runtime_error e)
+    {
+        std::cout << e.what() << std::endl;
+    }   
+    
     return 0;
 }

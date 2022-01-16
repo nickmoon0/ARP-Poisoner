@@ -33,7 +33,6 @@ Session::Session(std::string if_name)
     }
     catch (std::runtime_error e)
     {
-        std::cout << e.what() << std::endl;
         throw e;
     }
 }
@@ -63,16 +62,16 @@ void Session::start()
 
             std::cout << "---------------------" << std::endl;
 
-            std::cout << "Received ARP request:" << std::endl;
+            std::cout << std::endl << "Received ARP request:" << std::endl;
             ARP_Packet::printArpHeader(ap.getArpReq());
-            
+
             std::cout << std::endl << "Sent ARP response:" << std::endl;
             ARP_Packet::printArpHeader(ap.getArpRes());
+
             std::cout << std::endl;
         }
         catch (std::runtime_error e)
         {
-            std::cout << "Error: " << e.what() << std::endl;
             throw e;
         }   
     
@@ -137,4 +136,6 @@ void Session::printInterface()
     mac = interface->get_if_mac();
     std::cout << "  mac: ";
     printf("%02x:%02x:%02x:%02x:%02x:%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    std::cout << std::endl;
 }
