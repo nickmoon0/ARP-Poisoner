@@ -55,7 +55,7 @@ void Session::start()
         sniffer->receiveData(frame);
 
         // Create packet with received data and transmit response
-		ARP_Packet ap(frame, interface->get_if_mac());
+        ARP_Packet ap(frame, interface->get_if_mac());
 
         try
         {
