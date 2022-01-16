@@ -23,10 +23,10 @@ ARP_Packet::ARP_Packet(unsigned char* packet, unsigned char* local_mac)
     this->opcode = htons(2);
 
     parseAddresses(packet, local_mac);
+    
+    // Create structs
     createArpReq(packet);
-
-    // Initialise to nullptr
-    this->header = nullptr;
+    createArpHeader();
 
 }
 
@@ -58,6 +58,23 @@ void ARP_Packet::createArpReq(unsigned char* packet)
     memcpy(arpReq->target_ip, &packet[ETH_HEADER_LEN + 24], PROTOCOL_LENGTH);
 }
 
+void ARP_Packet::createArpHeader()
+{
+    this->header = (arp_header*)malloc(sizeof(arp_header));
+        
+    header->htype = this->htype;
+    header->ptype = this->ptype;
+    header->hlen = this->hlen;
+    header->plen = this->plen;
+    header->opcode = this->opcode;
+
+    memcpy(header->sender_mac, this->sender_mac, HARDWARE_LENGTH);
+    memcpy(header->sender_ip, this->sender_ip, PROTOCOL_LENGTH);
+
+    memcpy(header->target_mac, this->target_mac, HARDWARE_LENGTH);
+    memcpy(header->target_ip, this->target_ip, PROTOCOL_LENGTH); 
+}
+
 void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
 {
     int sender_mac_start = 22;
@@ -78,24 +95,6 @@ void ARP_Packet::parseAddresses(unsigned char* packet, unsigned char* local_mac)
 
 arp_header* ARP_Packet::getArpHeader()
 {
-    // If header has not yet been created
-    if (this->header == nullptr)
-    {
-        this->header = (arp_header*)malloc(sizeof(arp_header));
-        
-        header->htype = this->htype;
-        header->ptype = this->ptype;
-        header->hlen = this->hlen;
-        header->plen = this->plen;
-        header->opcode = this->opcode;
-
-        memcpy(header->sender_mac, this->sender_mac, HARDWARE_LENGTH);
-        memcpy(header->sender_ip, this->sender_ip, PROTOCOL_LENGTH);
-
-        memcpy(header->target_mac, this->target_mac, HARDWARE_LENGTH);
-        memcpy(header->target_ip, this->target_ip, PROTOCOL_LENGTH);   
-    }
-
     return this->header;
 }
 

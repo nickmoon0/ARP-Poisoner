@@ -36,7 +36,9 @@ public:
 private:
 
     void parseAddresses(unsigned char* packet, unsigned char* local_mac);
+    
     void createArpReq(unsigned char* packet);
+    void createArpHeader();
 
     u_int16_t htype;
     u_int16_t ptype;
