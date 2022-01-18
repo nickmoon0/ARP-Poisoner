@@ -91,16 +91,20 @@ void Session::start()
         {
             ap = new ARP_Packet(frame, interface->get_if_mac());
 
-            // Send response before printing to reduce delay
-            sendResponse(ap->getArpRes());
+            // If false, dont filter frame
+            if (!filterFrame(ap->getArpReq()))
+            {
+                // Send response before printing to reduce delay
+                sendResponse(ap->getArpRes());
 
-            // Print out ARP frame data
-            std::cout << "---------------------" << std::endl;
-            std::cout << std::endl << "Received ARP request:" << std::endl;
-            ARP_Packet::printArpHeader(ap->getArpReq());
-            std::cout << std::endl << "Sent ARP response:" << std::endl;
-            ARP_Packet::printArpHeader(ap->getArpRes());
-            std::cout << std::endl;
+                // Print out ARP frame data
+                std::cout << "---------------------" << std::endl;
+                std::cout << std::endl << "Received ARP request:" << std::endl;
+                ARP_Packet::printArpHeader(ap->getArpReq());
+                std::cout << std::endl << "Sent ARP response:" << std::endl;
+                ARP_Packet::printArpHeader(ap->getArpRes());
+                std::cout << std::endl;
+            }
 
             delete ap;
         }
@@ -150,6 +154,20 @@ void Session::sendResponse(struct arp_header* arpHeader)
     }
 
     close(sock);
+}
+
+bool Session::filterFrame(struct arp_header* arpReq)
+{
+    // Convert ip address to char so that it can be compared to string
+    char ip_addr[16]; // 16 = theoretical max digit size for IPv4 address
+    snprintf(ip_addr, sizeof(ip_addr), "%d.%d.%d.%d", arpReq->sender_ip[0], arpReq->sender_ip[1], arpReq->sender_ip[2], arpReq->sender_ip[3]);
+    
+    if (!strcmp(ip_addr, sender_ip.c_str()))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 // Just to print the interface details for the user

@@ -22,6 +22,7 @@ public:
 private:
 
     void sendResponse(struct arp_header* arpHeader);
+    bool filterFrame(struct arp_header* arpReq);
     void printInterface();
 
     EthInterface* interface;
