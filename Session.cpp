@@ -158,7 +158,7 @@ void Session::sendResponse(struct arp_header* arpHeader)
 
 bool Session::filterFrame(struct arp_header* arpReq)
 {
-    // Convert ip address to char so that it can be compared to string
+    // Convert sender ip address to char so that it can be compared to string
     char ip_addr[16]; // 16 = theoretical max digit size for IPv4 address
     snprintf(ip_addr, sizeof(ip_addr), "%d.%d.%d.%d", arpReq->sender_ip[0], arpReq->sender_ip[1], arpReq->sender_ip[2], arpReq->sender_ip[3]);
     
@@ -167,6 +167,17 @@ bool Session::filterFrame(struct arp_header* arpReq)
         return false;
     }
 
+    // Convert sender mac address to string
+    char mac_addr[18];
+    snprintf(mac_addr, sizeof(mac_addr), "%02x:%02x:%02x:%02x:%02x:%02x", arpReq->sender_mac[0], arpReq->sender_mac[1], arpReq->sender_mac[2], arpReq->sender_mac[3], arpReq->sender_mac[4], arpReq->sender_mac[5]);
+
+    std::cout << mac_addr << std::endl;
+    if (!strcmp(mac_addr, sender_mac.c_str()))
+    {
+        return false;
+    }
+
+    std::cout << "filtered" << std::endl;
     return true;
 }
 
