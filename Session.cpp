@@ -33,8 +33,8 @@ Session::Session(std::string if_name)
 
         this->target_ip = "";
         this->target_mac = "";
-        this->sender_ip = "192.168.1.1";
-        this->sender_mac = "00:15:5d:73:7b:ff";
+        this->sender_ip = "";
+        this->sender_mac = "";
     }
     catch (std::runtime_error e)
     {
