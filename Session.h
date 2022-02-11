@@ -12,6 +12,10 @@ class Session
 public:
 
     Session(std::string if_name);
+
+    // Used to target specific hosts AND use specific addresses
+    Session(std::string if_name, std::string target_mac, std::string target_ip, std::string source_mac, std::string source_ip);
+
     ~Session();
 
     void start();
@@ -19,10 +23,20 @@ public:
 private:
 
     void sendResponse(struct arp_header* arpHeader);
+    bool filterFrame(struct arp_header* arpReq);
     void printInterface();
+
+    char* convertIP(unsigned char* ip);
+    char* convertMAC(unsigned char* mac);
 
     EthInterface* interface;
     Sniffer* sniffer;
+
+    std::string target_ip;
+    std::string target_mac;
+
+    std::string sender_ip;
+    std::string sender_mac;
 };
 
 #endif

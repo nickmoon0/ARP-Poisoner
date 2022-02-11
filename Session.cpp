@@ -25,11 +25,37 @@ Session::Session(std::string if_name)
 {
     try
     {
-        interface = new EthInterface(if_name.c_str());
-        sniffer = new Sniffer(interface->get_if_index());
+        this->interface = new EthInterface(if_name.c_str());
+        this->sniffer = new Sniffer(interface->get_if_index());
 
         // If interface and sniffer created successfully
         printInterface();
+
+        this->target_ip = "";
+        this->target_mac = "";
+        this->sender_ip = "";
+        this->sender_mac = "";
+    }
+    catch (std::runtime_error e)
+    {
+        throw e;
+    }
+}
+
+Session::Session(std::string if_name, std::string target_mac, std::string target_ip, std::string source_mac, std::string source_ip)
+{
+    try
+    {
+        this->interface = new EthInterface(if_name.c_str());
+        this->sniffer = new Sniffer(interface->get_if_index());
+
+        // If interface and sniffer created successfully
+        printInterface();
+
+        this->target_ip = target_ip;
+        this->target_mac = target_mac;
+        this->sender_ip = sender_ip;
+        this->sender_mac = sender_mac;
     }
     catch (std::runtime_error e)
     {
@@ -65,16 +91,20 @@ void Session::start()
         {
             ap = new ARP_Packet(frame, interface->get_if_mac());
 
-            // Send response before printing to reduce delay
-            sendResponse(ap->getArpRes());
+            // If false, DONT filter frame
+            if (!filterFrame(ap->getArpReq()))
+            {
+                // Send response before printing to reduce delay
+                sendResponse(ap->getArpRes());
 
-            // Print out ARP frame data
-            std::cout << "---------------------" << std::endl;
-            std::cout << std::endl << "Received ARP request:" << std::endl;
-            ARP_Packet::printArpHeader(ap->getArpReq());
-            std::cout << std::endl << "Sent ARP response:" << std::endl;
-            ARP_Packet::printArpHeader(ap->getArpRes());
-            std::cout << std::endl;
+                // Print out ARP frame data
+                std::cout << "---------------------" << std::endl;
+                std::cout << std::endl << "Received ARP request:" << std::endl;
+                ARP_Packet::printArpHeader(ap->getArpReq());
+                std::cout << std::endl << "Sent ARP response:" << std::endl;
+                ARP_Packet::printArpHeader(ap->getArpRes());
+                std::cout << std::endl;
+            }
 
             delete ap;
         }
@@ -124,6 +154,61 @@ void Session::sendResponse(struct arp_header* arpHeader)
     }
 
     close(sock);
+}
+
+// If false, DONT filter frame
+bool Session::filterFrame(struct arp_header* arpReq)
+{
+    char* ip_addr;
+    char* mac_addr;
+
+    // Check if source IP matches
+    ip_addr = convertIP(arpReq->sender_ip);
+    if (!strcmp((const char*)ip_addr, sender_ip.c_str()))
+    {
+        // Didnt get filtered
+        return false;
+    }
+    free(ip_addr);
+
+    // Check if source MAC matches
+    mac_addr = convertMAC(arpReq->sender_mac);
+    if (!strcmp(mac_addr, sender_mac.c_str()))
+    {
+        // Didnt get filtered
+        return false;
+    }
+    free(mac_addr);
+
+    // Check if target IP matches
+    ip_addr = convertIP(arpReq->target_ip);
+    if (!strcmp((const char*)ip_addr, target_ip.c_str()))
+    {
+        // Didnt get filtered
+        return false;
+    }
+    free(ip_addr);
+
+    // Got filtered
+    return true;
+}
+
+char* Session::convertIP(u_int8_t ip[])
+{
+    int addressSize = PROTOCOL_LENGTH * 3 + 4;
+    char* ip_addr = (char*)malloc(addressSize);
+    snprintf(ip_addr, addressSize, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+
+    return ip_addr;
+}
+
+char* Session::convertMAC(unsigned char* mac)
+{
+    int addressSize = HARDWARE_LENGTH * 2 + 6;
+    char *mac_addr = (char*)malloc(addressSize);
+    snprintf(mac_addr, addressSize, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    return mac_addr;
 }
 
 // Just to print the interface details for the user
