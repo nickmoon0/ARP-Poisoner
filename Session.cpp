@@ -162,7 +162,7 @@ bool Session::filterFrame(struct arp_header* arpReq)
     char* ip_addr;
     char* mac_addr;
 
-    // Check if IP matches
+    // Check if source IP matches
     ip_addr = convertIP(arpReq->sender_ip);
     if (!strcmp((const char*)ip_addr, sender_ip.c_str()))
     {
@@ -171,7 +171,7 @@ bool Session::filterFrame(struct arp_header* arpReq)
     }
     free(ip_addr);
 
-    // Check if MAC matches
+    // Check if source MAC matches
     mac_addr = convertMAC(arpReq->sender_mac);
     if (!strcmp(mac_addr, sender_mac.c_str()))
     {
@@ -179,6 +179,15 @@ bool Session::filterFrame(struct arp_header* arpReq)
         return false;
     }
     free(mac_addr);
+
+    // Check if target IP matches
+    ip_addr = convertIP(arpReq->target_ip);
+    if (!strcmp((const char*)ip_addr, target_ip.c_str()))
+    {
+        // Didnt get filtered
+        return false;
+    }
+    free(ip_addr);
 
     // Got filtered
     return true;
