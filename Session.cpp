@@ -33,8 +33,8 @@ Session::Session(std::string if_name)
 
         this->target_ip = "";
         this->target_mac = "";
-        this->sender_ip = "";
-        this->sender_mac = "";
+        this->sender_ip = "192.168.1.1";
+        this->sender_mac = "00:15:5d:73:7b:ff";
     }
     catch (std::runtime_error e)
     {
@@ -91,7 +91,7 @@ void Session::start()
         {
             ap = new ARP_Packet(frame, interface->get_if_mac());
 
-            // If false, dont filter frame
+            // If false, DONT filter frame
             if (!filterFrame(ap->getArpReq()))
             {
                 // Send response before printing to reduce delay
@@ -156,29 +156,50 @@ void Session::sendResponse(struct arp_header* arpHeader)
     close(sock);
 }
 
+// If false, DONT filter frame
 bool Session::filterFrame(struct arp_header* arpReq)
 {
-    // Convert sender ip address to char so that it can be compared to string
-    char ip_addr[16]; // 16 = theoretical max digit size for IPv4 address
-    snprintf(ip_addr, sizeof(ip_addr), "%d.%d.%d.%d", arpReq->sender_ip[0], arpReq->sender_ip[1], arpReq->sender_ip[2], arpReq->sender_ip[3]);
-    
-    if (!strcmp(ip_addr, sender_ip.c_str()))
+    char* ip_addr;
+    char* mac_addr;
+
+    // Check if IP matches
+    ip_addr = convertIP(arpReq->sender_ip);
+    if (!strcmp((const char*)ip_addr, sender_ip.c_str()))
     {
+        // Didnt get filtered
         return false;
     }
+    free(ip_addr);
 
-    // Convert sender mac address to string
-    char mac_addr[18];
-    snprintf(mac_addr, sizeof(mac_addr), "%02x:%02x:%02x:%02x:%02x:%02x", arpReq->sender_mac[0], arpReq->sender_mac[1], arpReq->sender_mac[2], arpReq->sender_mac[3], arpReq->sender_mac[4], arpReq->sender_mac[5]);
-
-    std::cout << mac_addr << std::endl;
+    // Check if MAC matches
+    mac_addr = convertMAC(arpReq->sender_mac);
     if (!strcmp(mac_addr, sender_mac.c_str()))
     {
+        // Didnt get filtered
         return false;
     }
+    free(mac_addr);
 
-    std::cout << "filtered" << std::endl;
+    // Got filtered
     return true;
+}
+
+char* Session::convertIP(u_int8_t ip[])
+{
+    int addressSize = PROTOCOL_LENGTH * 3 + 4;
+    char* ip_addr = (char*)malloc(addressSize);
+    snprintf(ip_addr, addressSize, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+
+    return ip_addr;
+}
+
+char* Session::convertMAC(unsigned char* mac)
+{
+    int addressSize = HARDWARE_LENGTH * 2 + 6;
+    char *mac_addr = (char*)malloc(addressSize);
+    snprintf(mac_addr, addressSize, "%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+
+    return mac_addr;
 }
 
 // Just to print the interface details for the user
