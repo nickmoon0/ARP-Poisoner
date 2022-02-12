@@ -10,11 +10,7 @@
 class Session
 {
 public:
-
-    Session(std::string if_name);
-
-    // Used to target specific hosts AND use specific addresses
-    Session(std::string if_name, std::string target_mac, std::string target_ip, std::string source_mac, std::string source_ip);
+    Session(std::string if_name, std::string target_mac, std::string target_ip, std::string sender_mac, std::string sender_ip);
 
     ~Session();
 
