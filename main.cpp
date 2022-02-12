@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
                     // Help
                     case 'h':
                         printOptions();
-                        return 0; // Dont want to continue execution after help printeds
+                        return 0; // Dont want to continue execution after help prints
                     break;
 
                     // Incorrect options
