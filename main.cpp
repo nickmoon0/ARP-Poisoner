@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
     // Begin session
     try
     {
-        Session s(interface);
+        Session s(interface, target_mac, target_ip, sender_mac, sender_ip);
         s.start();
     }
     catch (std::runtime_error e)
