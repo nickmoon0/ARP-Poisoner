@@ -3,6 +3,37 @@
 
 #include "Session.h"
 
+void printOptions()
+{
+    std::cout << "-t <MAC address>" << std::endl;
+    std::cout << "\t" << "Allows user to specify target MAC Address." << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "-f <IP address>" << std::endl;
+    std::cout << "\t" << "Allows user to specify target IP. This will only respond to ARP requests looking for this IP addresss" << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "-m <MAC address>" << std::endl;
+    std::cout << "\t" << "Allows user to specify sender MAC. This will only respond to ARP requests originating from this MAC addresss" << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "-s <IP address>" << std::endl;
+    std::cout << "\t" << "Allows user to specify sender IP. This will only respond to ARP requests originating from this IP address" << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "-i <interface name>" << std::endl;
+    std::cout << "\t" << "Allows user to specify interface. This will bind the socket to the specified interface (so long as interface exists)" << std::endl;
+
+    std::cout << std::endl;
+
+    std::cout << "-h" << std::endl;
+    std::cout << "\t" << "Displays this menu" << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     std::string interface = "eth0";
@@ -25,7 +56,7 @@ int main(int argc, char* argv[])
         // Try/catch for any incorrectly entered arguments
         try
         {
-            while ((opt = getopt(argc, argv, ":t:f:m:h:i:")) != -1)
+            while ((opt = getopt(argc, argv, ":t:f:m:s:i:h")) != -1)
             {
                 switch(opt)
                 {
@@ -44,13 +75,19 @@ int main(int argc, char* argv[])
                     break;
 
                     // Sender IP
-                    case 'h':
+                    case 's':
                         sender_ip = optarg;
                     break;
 
                     // Interface
                     case 'i':
                         interface = optarg;
+                    break;
+
+                    // Help
+                    case 'h':
+                        printOptions();
+                        return 0; // Dont want to continue execution after help printeds
                     break;
 
                     // Incorrect options
